@@ -1,5 +1,4 @@
-# IT-duel 2016
-## IT duel 2016 at Anadea inc.
+# IT duel 2016 at Anadea inc.
 
 Epic win! :)
 
