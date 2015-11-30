@@ -5,6 +5,7 @@ require_relative 'tetris'
 
 SIZE = ARGV[0].to_i
 TIMEOUT = ARGV[1].to_i
+TOKEN = "0c07cedd-397b-491a-9173-370a1969dd97"
 
 class Tetramino
   include HTTParty
@@ -12,7 +13,7 @@ class Tetramino
   format :json
 
   def make_query(params)
-    params.merge(token: "0c07cedd-397b-491a-9173-370a1969dd97")
+    params.merge(token: TOKEN)
   end
 
   def fetch
