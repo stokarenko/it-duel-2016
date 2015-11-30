@@ -1,11 +1,11 @@
 # Copyright (c) 2015 Sergey Tokarenko
 
+require 'timeout'
+
 require_relative 'field_with_border'
 require_relative 'block_masks'
 
 class Tetris
-  class TimeoutError < StandardError; end
-
   DEFAULT_BLOCKS_ORDER = %i(I S Z J L T O).freeze
 
   attr_reader :id, :size, :blocks, :blocks_count, :block_masks
@@ -19,23 +19,23 @@ class Tetris
   end
 
   def solve(options = {})
-    timeout = options.key?(:timeout) ? Time.now + options[:timeout] : nil
+    timeout = options.fetch(:timeout, 0).to_i
     available_blocks = sort_blocks(options.fetch(:blocks_order, DEFAULT_BLOCKS_ORDER))
 
     catch(:done){
-      _solve(timeout, FieldWithBorder[size], size+1, available_blocks, [])
+      Timeout.timeout(timeout) do
+        _solve(timeout, FieldWithBorder[size], size+1, available_blocks, [])
+      end
     }.map!{ |block_id, angle_id, mask_position|
       [block_id, angle_id, mask_position % size - 1, mask_position / size - 1]
     }
-  rescue TimeoutError
+  rescue Timeout::Error
     nil
   end
 
   private
 
   def _solve(timeout, field, position, available_blocks, solution)
-    raise TimeoutError if timeout && Time.now > timeout
-
     if solution.size == blocks_count
       print_field(field)
       throw :done, solution
