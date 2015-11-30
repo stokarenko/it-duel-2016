@@ -2,7 +2,7 @@
 
 ![](epic_win.jpg)
 
-Look at [Task definition](http://tetro.andy128k.net/).
+Look at the [task definition](http://tetro.andy128k.net/).
 
 Run it:
 ```console
