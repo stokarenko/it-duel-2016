@@ -24,7 +24,7 @@ class Tetramino
   end
 
   def send(task, result)
-    self.class.get("/puzzle", query: make_query(id: task[:id], solution: result.to_json.inspect)).parsed_response
+    self.class.post("/puzzle", query: make_query(id: task[:id], solution: result.to_json.inspect)).parsed_response
   end
 
   def work!
