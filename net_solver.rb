@@ -17,7 +17,7 @@ class Tetramino
   end
 
   def fetch
-    self.class.get("/puzzle", query: make_query(size: SIZE)).parsed_response
+    self.class.get("/puzzle", query: make_query(size: SIZE)).parsed_response.tap {|x| puts x}
   end
 
   def solve(task)
@@ -25,7 +25,7 @@ class Tetramino
   end
 
   def send(task, result)
-    self.class.post("/puzzle", query: make_query(id: task[:id], solution: result.to_json.inspect)).parsed_response
+    self.class.post("/puzzle", body: make_query(id: task["id"], solution: result.to_json)).parsed_response.tap {|x| puts x}
   end
 
   def work!
@@ -39,5 +39,7 @@ end
 client = Tetramino.new
 
 while true
-  p client.work!
+  puts "=" * 42
+  puts
+  client.work!
 end
