@@ -9,4 +9,4 @@ Run it:
   ruby net_solver.rb {SIZE} [TIMEOUT]
 ```
 
-MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko
+MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.

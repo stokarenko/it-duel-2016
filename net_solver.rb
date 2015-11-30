@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Dmitriy Kiriyenko
+# Copyright (c) 2015 Dmitriy Kiriyenko, Alexey Kudryashov.
 
 require 'httparty'
 require_relative 'tetris'
