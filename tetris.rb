@@ -24,7 +24,7 @@ class Tetris
 
     catch(:done){
       Timeout.timeout(timeout) do
-        _solve(timeout, FieldWithBorder[size], size+1, available_blocks, [])
+        _solve(FieldWithBorder[size], size+1, available_blocks, [])
       end
     }.map!{ |block_id, angle_id, mask_position|
       [block_id, angle_id, mask_position % size - 1, mask_position / size - 1]
@@ -35,7 +35,7 @@ class Tetris
 
   private
 
-  def _solve(timeout, field, position, available_blocks, solution)
+  def _solve(field, position, available_blocks, solution)
     if solution.size == blocks_count
       print_field(field)
       throw :done, solution
@@ -49,7 +49,7 @@ class Tetris
             available_blocks[block_id] -= 1
             solution << [block_id, angle_id, mask_position]
 
-            _solve(timeout, new_field, new_position, available_blocks, solution)
+            _solve(new_field, new_position, available_blocks, solution)
 
             available_blocks[block_id] += 1
             solution.pop
