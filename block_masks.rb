@@ -63,7 +63,7 @@ module BlockMasks
 
     def block_patterns
       @@block_patterns ||= begin
-        pairs = BLOCKS.each_pair.map{ |block_id, main_block|
+        pairs = BLOCKS.map{ |block_id, main_block|
           rotated_blocks = [main_block]
           (1..3).each do |i|
             rotated_blocks[i] = rotated_blocks[i-1].reverse.transpose
@@ -72,8 +72,7 @@ module BlockMasks
 
           block_rotation_patterns = rotated_blocks.map{ |block|
             line_patterns = block.reverse.map{ |line|
-              line.reverse.reduce(0){|mem, i|
-                new_bit = i == 1 ? 1 : 0
+              line.reverse.reduce(0){|mem, new_bit|
                 (mem << 1) + new_bit
               }
             }
