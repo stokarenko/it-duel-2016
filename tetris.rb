@@ -21,10 +21,11 @@ class Tetris
   def solve(options = {})
     timeout = options.fetch(:timeout, 0).to_i
     available_blocks = sort_blocks(options.fetch(:blocks_order, DEFAULT_BLOCKS_ORDER))
+    verbose = options.fetch(:verbose, false)
 
     catch(:done){
       Timeout.timeout(timeout) do
-        _solve(FieldWithBorder[size], size+1, available_blocks, [])
+        _solve(FieldWithBorder[size], size+1, available_blocks, [], verbose)
       end
     }.map!{ |block_id, angle_id, mask_position|
       [block_id, angle_id, mask_position % size - 1, mask_position / size - 1]
@@ -35,11 +36,10 @@ class Tetris
 
   private
 
-  def _solve(field, position, available_blocks, solution)
-    if solution.size == blocks_count
-      print_field(field)
-      throw :done, solution
-    end
+  def _solve(field, position, available_blocks, solution, verbose)
+    print_field(field) if verbose
+
+    throw(:done, solution) if solution.size == blocks_count
 
     available_blocks.each do |block_id, number|
       unless number == 0
@@ -49,7 +49,7 @@ class Tetris
             available_blocks[block_id] -= 1
             solution << [block_id, angle_id, mask_position]
 
-            _solve(new_field, new_position, available_blocks, solution)
+            _solve(new_field, new_position, available_blocks, solution, verbose)
 
             available_blocks[block_id] += 1
             solution.pop
@@ -99,7 +99,8 @@ class Tetris
       print (field[i] == 0 ? '_' : '@')
       puts if (i+1) % size == 0
     end
-    puts
+
+    print "\r" + ("\e[A" * size)
   end
 
 end
