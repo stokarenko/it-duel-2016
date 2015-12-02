@@ -4,8 +4,6 @@ require 'timeout'
 
 module Tetris
   class Solver
-    DEFAULT_BLOCKS_ORDER = %i(I S Z J L T O).freeze
-
     attr_reader :size, :blocks, :blocks_count, :block_masks
 
     def initialize(options)
@@ -21,12 +19,12 @@ module Tetris
       timeout = (options[:timeout] || 0).to_i
       verbose = options[:verbose] || false
 
-      available_blocks = sort_blocks(options.fetch(:blocks_order, DEFAULT_BLOCKS_ORDER))
+      available_blocks = BalancedBlocksContainer.new(blocks)
 
       catch(:done){
-        Timeout.timeout(timeout) do
+        Timeout.timeout(timeout) {
           _solve(FieldWithBorder[size], size+1, available_blocks, [], verbose)
-        end
+        }
       }.map!{ |block_id, angle_id, mask_position|
         [block_id, angle_id, mask_position % size - 1, mask_position / size - 1]
       }
@@ -46,12 +44,12 @@ module Tetris
           block_masks[block_id].each_with_index do |mask, angle_id|
             new_field, new_position, mask_position = apply_block(field, position, mask)
             if new_field
-              available_blocks[block_id] -= 1
+              available_blocks.take(block_id)
               solution << [block_id, angle_id, mask_position]
 
               _solve(new_field, new_position, available_blocks, solution, verbose)
 
-              available_blocks[block_id] += 1
+              available_blocks.return(block_id)
               solution.pop
             end
           end
@@ -83,14 +81,6 @@ module Tetris
           scan(/(\w)(\d+)/).
           map{ |block_id, number| [block_id.to_sym, number.to_i] }.
           select{ |_, number| number > 0 }
-      ]
-    end
-
-    def sort_blocks(blocks_order)
-      Hash[
-        blocks_order.map{ |z|
-          blocks.key?(z) ? [z, blocks[z]] : nil
-        }.compact
       ]
     end
 

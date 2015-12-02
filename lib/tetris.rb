@@ -6,8 +6,9 @@ module Tetris
   autoload :NetSolver,        'tetris/net_solver'
   autoload :Solver,           'tetris/solver'
 
-  autoload :BlockMasks,       'tetris/block_masks'
-  autoload :FieldWithBorder,  'tetris/field_with_border'
+  autoload :BlockMasks,               'tetris/block_masks'
+  autoload :FieldWithBorder,          'tetris/field_with_border'
+  autoload :BalancedBlocksContainer,  'tetris/balanced_blocks_container'
 
   autoload :Test,             'tetris/test'
 end
