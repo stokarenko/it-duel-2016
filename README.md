@@ -2,14 +2,22 @@
 
 Epic win! :)
 
-The challenge format - single creative problem, seven 4-max teams, 5 hours for solving,
+The challenge format - single creative problem, seven 4-max teams, 4 hours for solving,
 
-The winner team: Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.
+The winner team: [Sergey Tokarenko](https://github.com/stokarenko), [Dmitriy Kiriyenko](https://github.com/dmitriy-kiriyenko), [Alexey Kudryashov](https://github.com/KudryashovAV).
 
 ![](epic_win.jpg)
 
 ## The problem
-Look at the [task definition](http://tetro.andy128k.net/).
+Goal: you need collect foursquare N*N (where N since 4 to 50) from the given set of figures [tetromino](https://en.wikipedia.org/wiki/Tetromino).
+The figures can be rotates:
+![](rotates_of_figure.png)
+
+Describing of formats for tasks and solutions:
+![](API.png)
+
+Example - pair task-solution:
+![](example.png)
 
 ## The solution
 Clone it.
@@ -54,3 +62,19 @@ Want to see how it work? Choose the test case in `lib/tetris/test.rb`, run somet
 * Discover the remaining pathological cases
 
 MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.
+
+
+
+
+
+
+https://www.dropbox.com/s/wdznlqj9akbsau8/Screenshot%202015-12-02%2009.23.57.png?dl=0 пример задачи
+
+
+
+
+Мы делаем поиск в глубину (DFS). То есть, пытаемся положить первую фигурку, если легла – следующую, когда какая-то не легла - всплываем выше по стеку и пробуем другой поворот / другую фигуру.
+
+В момент, когда фигурки заканчиваются, вылетаем из рекурсии досрочно – собственно, это и есть главный трюк на уровне алгоритма. Кстати, используется малоизвестная фича Руби throw .. catch – она бывает полезна.
+
+Сама же попытка положить фигурку сильно оптимизирована за счёт битовых масок фигур и поля.
