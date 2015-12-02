@@ -62,10 +62,14 @@ module Tetris
 
       if field & positioned_mask == 0
         new_field = field + positioned_mask
-        [new_field, next_position(new_field, position), mask_position]
-      else
-        false
+        new_position = next_position(new_field, position)
+
+        if new_position.nil? || Connectivity.check(size, new_field, new_position)
+          return [new_field, new_position, mask_position]
+        end
       end
+
+      false
     end
 
     def next_position(field, position)
