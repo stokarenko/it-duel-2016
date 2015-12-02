@@ -4,12 +4,11 @@ require 'timeout'
 
 module Tetris
   class Solver
-    attr_reader :size, :blocks, :blocks_count, :block_masks
+    attr_reader :size, :blocks, :block_masks
 
     def initialize(options)
       @size = options.fetch(:size) + 2
       @blocks = parse_blocks(options.fetch(:signature))
-      @blocks_count = @blocks.values.reduce(:+)
 
       @block_masks = BlockMasks[size]
     end
@@ -37,7 +36,7 @@ module Tetris
     def _solve(field, position, available_blocks, solution, verbose)
       print_field(field) if verbose
 
-      throw(:done, solution) if solution.size == blocks_count
+      throw(:done, solution) unless position
 
       available_blocks.each do |block_id, number|
         unless number == 0
@@ -70,9 +69,9 @@ module Tetris
     end
 
     def next_position(field, position)
-      position += 1 while(field[position] == 1)
+      position = DiagonalPositionStrategy.next(size, position) while(field[position] == 1)
 
-      position
+      position / size < size ? position : nil
     end
 
     def parse_blocks(signature)

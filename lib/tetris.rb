@@ -9,6 +9,7 @@ module Tetris
   autoload :BlockMasks,               'tetris/block_masks'
   autoload :FieldWithBorder,          'tetris/field_with_border'
   autoload :BalancedBlocksContainer,  'tetris/balanced_blocks_container'
+  autoload :DiagonalPositionStrategy, 'tetris/diagonal_position_strategy'
 
   autoload :Test,             'tetris/test'
 end
