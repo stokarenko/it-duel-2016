@@ -1,3 +1,5 @@
+# Copyright (c) 2015 Sergey Tokarenko
+
 module Tetris
   class BalancedBlocksContainer
 
