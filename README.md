@@ -116,5 +116,6 @@ For optimize we use bitmaps for figures and field.
 * Fix message on timeout, the problem is not solved in this case ))
 * Fix verbose output
 * Discover the remaining pathological cases
+* Move API URL and token to config file
 
 MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.
