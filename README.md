@@ -6,14 +6,14 @@ The challenge format - single creative problem, seven 4-max teams, 4 hours for s
 
 The winner team: [Sergey Tokarenko](https://github.com/stokarenko), [Dmitriy Kiriyenko](https://github.com/dmitriy-kiriyenko), [Alexey Kudryashov](https://github.com/KudryashovAV).
 
-![](epic_win.jpg)
+![](images/epic_win.jpg)
 
 ## The problem
 Goal: you need to collect foursquare N*N (where N since 4 to 50) from the given set of figures [tetromino](https://en.wikipedia.org/wiki/Tetromino).
 The figures can be rotates.
 
 Example - pair task-solution:
-![](example.png)
+![](images/example.png)
 
 ## API
 
@@ -64,7 +64,7 @@ In parameter `solution` as answer you must send matrix 4*M, where M - the total 
 
 Each string has next format: `['figures type', angle of rotation, the position of the upper-left corner of the shape horizontally, the position of the upper-left corner of the shape vertical]`. Please note that the readout position begins with 0.  More species from the figures and their corners can be found in the image.
 
-![](rotates_of_figure.png)
+![](images/rotates_of_figure.png)
 
 Example of a response to the solution: `{"id":123116,"solved":true,"submitted_at":"2015-12-12 12:12:12Z"}`, where
 
