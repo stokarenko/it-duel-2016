@@ -47,9 +47,7 @@ module Tetris
             masks = patterns.map{ |pattern|
               pattern.dup.tap{ |mask|
                 line_patterns = mask.delete(:line_patterns)
-                mask[:mask] = line_patterns.reduce(0) { |mem, line_pattern|
-                  (mem << size) + line_pattern
-                }
+                mask[:mask] = MaskUtils.compile_line_patterns(line_patterns, size)
               }
             }
 
@@ -72,15 +70,9 @@ module Tetris
             rotated_blocks.uniq!
 
             block_rotation_patterns = rotated_blocks.map{ |block|
-              line_patterns = block.reverse.map{ |line|
-                line.reverse.reduce(0){|mem, new_bit|
-                  (mem << 1) + new_bit
-                }
-              }
-
               {
                 first_point_position: block.first.index(1),
-                line_patterns: line_patterns
+                line_patterns: MaskUtils.line_patterns(block)
               }
             }
 
