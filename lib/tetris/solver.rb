@@ -4,6 +4,8 @@ require 'timeout'
 
 module Tetris
   class Solver
+    STRATEGY = DiagonalPositionStrategy
+
     attr_reader :size, :blocks, :block_masks
 
     def initialize(options)
@@ -40,8 +42,8 @@ module Tetris
 
       available_blocks.each do |block_id, number|
         unless number == 0
-          block_masks[block_id].each_with_index do |mask, angle_id|
-            new_field, new_position, mask_position = apply_block(field, position, mask)
+          (0...block_masks[block_id].size).each do |angle_id|
+            new_field, new_position, mask_position = apply_block(field, position, block_id, angle_id)
             if new_field
               available_blocks.take(block_id)
               solution << [block_id, angle_id, mask_position]
@@ -56,16 +58,22 @@ module Tetris
       end
     end
 
-    def apply_block(field, position, mask)
-      mask_position = position - mask[:first_point_position]
-      positioned_mask = mask[:mask] << mask_position
+    def apply_block(field, position, block_id, angle_id)
+      mask = block_masks[block_id][angle_id]
 
-      if field & positioned_mask == 0
-        new_field = field + positioned_mask
-        new_position = next_position(new_field, position)
+      STRATEGY.each_mask_position(size, position, block_id, angle_id, mask[:first_point_position]) do |mask_position|
+        positioned_mask = mask[:mask] << mask_position
 
-        if new_position.nil? || Connectivity.check(size, new_field, new_position)
-          return [new_field, new_position, mask_position]
+        if field & positioned_mask == 0
+          new_field = field + positioned_mask
+          new_position = next_position(new_field, position)
+
+          if new_position.nil? || (
+            Connectivity.check(size, new_field, new_position) &&
+            STRATEGY.check_pathologies(new_field, size, block_id, angle_id, mask_position)
+          )
+            return [new_field, new_position, mask_position]
+          end
         end
       end
 
@@ -73,7 +81,7 @@ module Tetris
     end
 
     def next_position(field, position)
-      position = DiagonalPositionStrategy.next(size, position) while(field[position] == 1)
+      position = STRATEGY.next(size, position) while(field[position] == 1)
 
       position / size < size ? position : nil
     end
