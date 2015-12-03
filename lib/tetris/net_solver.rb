@@ -1,6 +1,7 @@
 # Copyright (c) 2015 Dmitriy Kiriyenko, Alexey Kudryashov, Sergey Tokarenko.
 
 require 'httparty'
+require 'benchmark'
 
 module Tetris
   class NetSolver
@@ -38,15 +39,32 @@ module Tetris
     end
 
     def fetch
-      self.class.get("/puzzle", query: make_query(size: size)).parsed_response.tap {|x| puts x}
+      benchmark do
+        self.class.get("/puzzle", query: make_query(size: size)).parsed_response
+      end
     end
 
     def solve(task)
-      Solver.new(size: size, signature: task["signature"]).solve(timeout: timeout)
+      benchmark('Solved!') do
+        Solver.new(size: size, signature: task["signature"]).solve(timeout: timeout)
+      end
     end
 
     def send(task, result)
-      self.class.post("/puzzle", body: make_query(id: task["id"], solution: result.to_json)).parsed_response.tap {|x| puts x}
+      benchmark do
+        self.class.post("/puzzle", body: make_query(id: task["id"], solution: result.to_json)).parsed_response
+      end
+    end
+
+    def benchmark(message = nil)
+      res = nil
+
+      benchmark = Benchmark.measure {
+        res = yield
+      }
+      puts "[%.2fs] %s" % [benchmark.real, message || res]
+
+      res
     end
 
   end
