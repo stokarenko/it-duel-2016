@@ -3,6 +3,7 @@
 module Tetris
   module DiagonalStrategy
     module Connectivity
+      #TODO cleanup..
       DIAGONAL_INDEX_DELTA = 5
 
       class << self

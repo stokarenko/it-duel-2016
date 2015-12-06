@@ -13,29 +13,31 @@ module Tetris
           end
         end
 
-=begin
-TODO
-  @@@@@@@@@@@@@@@@@@@@@@@____________________________@
-  @@@@@@@@@@@@@@@@@@_@@______________________________@
-  @@@@@@@@@@@@@@@@@__@@______________________________@
-  @@@@@@@@@@@@@@@@___________________________________@
-  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-=end
-
         def check(board, size, figure_id, angle_id, mask_cell)
-          if angle_id == 1 && (figure_id == :J || figure_id == :I)
-            cell = figure_id == :J ? mask_cell : mask_cell - size + 1
+          # @@@@@@@@@@@@@@@@@@@@@@@@@@@________________________@
+          # @@@@@@@@@@@@@@@@@@@@@@@@@@@________________________@
+          # @@@@@@@@@@@@@@@@@@@@@@@@@_@________________________@
+          # @@@@@@@@@@@@@@@@@@@@@@@@?_@________________________@
+          # @@@@@@@@@@@@@@@@@@@@@@@____________________________@
+          # @@@@@@@@@@@@@@@@@@@@@@@@@__________________________@
 
-            if board[cell+1] == 0 && board[cell+2] == 0 && board[cell+3] == 0 &&
-               board[cell-size+2] == 1 && board[cell-size+3] == 0 && board[cell-size+4] == 1 &&
-               board[cell-2*size+3] == 0 && board[cell-2*size+4] == 1
-              return false
-            end
+          cell = if figure_id == :J && angle_id == 1
+            mask_cell
+          elsif figure_id == :I && angle_id == 1
+            mask_cell - size + 1
+          elsif figure_id == :L && angle_id == 2 && mask_cell / size == size - 5
+            mask_cell + 3*size - 3
+          elsif figure_id == :I && angle_id == 0 && mask_cell / size == size - 6
+            mask_cell + 4*size - 4
           end
 
-          true
+          !(
+            cell &&
+            board[cell+1] == 0 && board[cell+2] == 0 && board[cell+3] == 0 &&
+            board[cell-size+3] == 0 && board[cell-size+4] == 1 &&
+            board[cell-2*size+2] == 1 && board[cell-2*size+3] == 0 && board[cell-2*size+4] == 1
+          )
         end
-
       end
     end
   end
