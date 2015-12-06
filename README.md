@@ -93,13 +93,13 @@ There are just three ones:
    Then, try to find the way from root `empty board` tree node to `fully filled board` node
    via [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
 
-That's all - neither kind of connectivity checks, nor programming ado  =)
+That's all - neither kind of connectivity checks nor programming ado  =)
 So simple to implement within 4 hours, so effective to get a victory :)
 The sources of that solution are marked by [v0.0.1](https://github.com/stokarenko/it-duel-2016/tree/v0.0.1) tag.
 
 ## Ultimate ideas
 The `Ultimate` solution lives in [master](https://github.com/stokarenko/it-duel-2016) branch.
-It is natural evolution of winner one, bust extended by several key ideas. Such as...
+It is natural evolution of winner one, but extended by several key ideas. Such as...
 
 ### Balanced Figures Container !
 [Check it out](lib/tetris/balanced_figures_container.rb)
@@ -198,7 +198,7 @@ That's because it is trying to apply `L` like that:
 
 ![](images/pathologic_l_wrong_placement.png)
 
-[Check out](lib/tetris/diagonal_strategy/pathology.rb) the box fixes.
+[Check out](lib/tetris/diagonal_strategy/pathology.rb) the both fixes.
 
 ## The solution
 Clone it.
@@ -242,6 +242,8 @@ Choose the test case in `lib/tetris/test.rb`, run something like:
 * Move API URL and token to config file
 * Cleanup connectivity
 * Recursive to iterative (?)
+* Describe some cool programming tricks
+* One pathologic image is not perfect ((
 
 ## LICENSE
 MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.
