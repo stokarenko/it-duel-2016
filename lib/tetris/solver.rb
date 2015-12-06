@@ -6,13 +6,13 @@ module Tetris
   class Solver
     STRATEGY = DiagonalCellStrategy
 
-    attr_reader :size, :blocks, :block_masks
+    attr_reader :size, :figures, :figure_masks
 
     def initialize(options)
       @size = options.fetch(:size) + 2
-      @blocks = parse_blocks(options.fetch(:signature))
+      @figures = parse_figures(options.fetch(:signature))
 
-      @block_masks = BlockMasks[size]
+      @figure_masks = FigureMasks[size]
     end
 
     def solve(options = {})
@@ -20,14 +20,14 @@ module Tetris
       timeout = (options[:timeout] || 0).to_i
       verbose = options[:verbose] || false
 
-      available_blocks = BalancedBlocksContainer.new(blocks)
+      available_figures = BalancedFiguresContainer.new(figures)
 
       catch(:done){
         Timeout.timeout(timeout) {
-          _solve(BoardWithBorder[size], size+1, available_blocks, [], verbose)
+          _solve(BoardWithBorder[size], size+1, available_figures, [], verbose)
         }
-      }.map!{ |block_id, angle_id, mask_cell|
-        [block_id, angle_id, mask_cell % size - 1, mask_cell / size - 1]
+      }.map!{ |figure_id, angle_id, mask_cell|
+        [figure_id, angle_id, mask_cell % size - 1, mask_cell / size - 1]
       }
     rescue Timeout::Error
       nil
@@ -35,22 +35,22 @@ module Tetris
 
     private
 
-    def _solve(board, cell, available_blocks, solution, verbose)
+    def _solve(board, cell, available_figures, solution, verbose)
       print_board(board) if verbose
 
       throw(:done, solution) unless cell
 
-      available_blocks.each do |block_id, number|
+      available_figures.each do |figure_id, number|
         unless number == 0
-          (0...block_masks[block_id].size).each do |angle_id|
-            new_board, new_cell, mask_cell = apply_block(board, cell, block_id, angle_id)
+          (0...figure_masks[figure_id].size).each do |angle_id|
+            new_board, new_cell, mask_cell = apply_figure(board, cell, figure_id, angle_id)
             if new_board
-              available_blocks.take(block_id)
-              solution << [block_id, angle_id, mask_cell]
+              available_figures.take(figure_id)
+              solution << [figure_id, angle_id, mask_cell]
 
-              _solve(new_board, new_cell, available_blocks, solution, verbose)
+              _solve(new_board, new_cell, available_figures, solution, verbose)
 
-              available_blocks.return(block_id)
+              available_figures.return(figure_id)
               solution.pop
             end
           end
@@ -58,10 +58,10 @@ module Tetris
       end
     end
 
-    def apply_block(board, cell, block_id, angle_id)
-      mask = block_masks[block_id][angle_id]
+    def apply_figure(board, cell, figure_id, angle_id)
+      mask = figure_masks[figure_id][angle_id]
 
-      STRATEGY.each_mask_cell(size, cell, block_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
+      STRATEGY.each_mask_cell(size, cell, figure_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
         celled_mask = mask[:mask] << mask_cell
 
         if board & celled_mask == 0
@@ -70,7 +70,7 @@ module Tetris
 
           if new_cell.nil? || (
             Connectivity.check(size, new_board, new_cell) &&
-            STRATEGY.check_pathologies(new_board, size, block_id, angle_id, mask_cell)
+            STRATEGY.check_pathologies(new_board, size, figure_id, angle_id, mask_cell)
           )
             return [new_board, new_cell, mask_cell]
           end
@@ -86,11 +86,11 @@ module Tetris
       cell / size < size ? cell : nil
     end
 
-    def parse_blocks(signature)
+    def parse_figures(signature)
       Hash[
         signature.
           scan(/(\w)(\d+)/).
-          map{ |block_id, number| [block_id.to_sym, number.to_i] }.
+          map{ |figure_id, number| [figure_id.to_sym, number.to_i] }.
           select{ |_, number| number > 0 }
       ]
     end

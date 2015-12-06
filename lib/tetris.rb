@@ -7,9 +7,9 @@ module Tetris
   autoload :Solver,           'tetris/solver'
 
   autoload :MaskUtils,                      'tetris/mask_utils'
-  autoload :BlockMasks,                     'tetris/block_masks'
+  autoload :FigureMasks,                     'tetris/figure_masks'
   autoload :BoardWithBorder,                'tetris/board_with_border'
-  autoload :BalancedBlocksContainer,        'tetris/balanced_blocks_container'
+  autoload :BalancedFiguresContainer,        'tetris/balanced_figures_container'
   autoload :Connectivity,                   'tetris/connectivity'
 
   autoload :DiagonalCellStrategy,       'tetris/diagonal_cell_strategy'
