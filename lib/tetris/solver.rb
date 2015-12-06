@@ -4,7 +4,7 @@ require 'timeout'
 
 module Tetris
   class Solver
-    STRATEGY = DiagonalCellStrategy
+    STRATEGY = DiagonalStrategy
 
     attr_reader :size, :figures, :figure_masks
 
@@ -61,7 +61,7 @@ module Tetris
     def apply_figure(board, cell, figure_id, angle_id)
       mask = figure_masks[figure_id][angle_id]
 
-      STRATEGY.each_mask_cell(size, cell, figure_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
+      STRATEGY::Cell.each_mask_cell(size, cell, figure_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
         celled_mask = mask[:mask] << mask_cell
 
         if board & celled_mask == 0
@@ -70,7 +70,7 @@ module Tetris
 
           if new_cell.nil? || (
             Connectivity.check(size, new_board, new_cell) &&
-            STRATEGY.check_pathologies(new_board, size, figure_id, angle_id, mask_cell)
+            STRATEGY::Cell.check_pathologies(new_board, size, figure_id, angle_id, mask_cell)
           )
             return [new_board, new_cell, mask_cell]
           end
@@ -81,7 +81,7 @@ module Tetris
     end
 
     def next_cell(board, cell)
-      cell = STRATEGY.next(size, cell) while(board[cell] == 1)
+      cell = STRATEGY::Cell.next(size, cell) while(board[cell] == 1)
 
       cell / size < size ? cell : nil
     end
