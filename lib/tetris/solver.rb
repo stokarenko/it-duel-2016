@@ -4,7 +4,7 @@ require 'timeout'
 
 module Tetris
   class Solver
-    STRATEGY = DiagonalPositionStrategy
+    STRATEGY = DiagonalCellStrategy
 
     attr_reader :size, :blocks, :block_masks
 
@@ -24,10 +24,10 @@ module Tetris
 
       catch(:done){
         Timeout.timeout(timeout) {
-          _solve(FieldWithBorder[size], size+1, available_blocks, [], verbose)
+          _solve(BoardWithBorder[size], size+1, available_blocks, [], verbose)
         }
-      }.map!{ |block_id, angle_id, mask_position|
-        [block_id, angle_id, mask_position % size - 1, mask_position / size - 1]
+      }.map!{ |block_id, angle_id, mask_cell|
+        [block_id, angle_id, mask_cell % size - 1, mask_cell / size - 1]
       }
     rescue Timeout::Error
       nil
@@ -35,20 +35,20 @@ module Tetris
 
     private
 
-    def _solve(field, position, available_blocks, solution, verbose)
-      print_field(field) if verbose
+    def _solve(board, cell, available_blocks, solution, verbose)
+      print_board(board) if verbose
 
-      throw(:done, solution) unless position
+      throw(:done, solution) unless cell
 
       available_blocks.each do |block_id, number|
         unless number == 0
           (0...block_masks[block_id].size).each do |angle_id|
-            new_field, new_position, mask_position = apply_block(field, position, block_id, angle_id)
-            if new_field
+            new_board, new_cell, mask_cell = apply_block(board, cell, block_id, angle_id)
+            if new_board
               available_blocks.take(block_id)
-              solution << [block_id, angle_id, mask_position]
+              solution << [block_id, angle_id, mask_cell]
 
-              _solve(new_field, new_position, available_blocks, solution, verbose)
+              _solve(new_board, new_cell, available_blocks, solution, verbose)
 
               available_blocks.return(block_id)
               solution.pop
@@ -58,21 +58,21 @@ module Tetris
       end
     end
 
-    def apply_block(field, position, block_id, angle_id)
+    def apply_block(board, cell, block_id, angle_id)
       mask = block_masks[block_id][angle_id]
 
-      STRATEGY.each_mask_position(size, position, block_id, angle_id, mask[:first_point_position]) do |mask_position|
-        positioned_mask = mask[:mask] << mask_position
+      STRATEGY.each_mask_cell(size, cell, block_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
+        celled_mask = mask[:mask] << mask_cell
 
-        if field & positioned_mask == 0
-          new_field = field + positioned_mask
-          new_position = next_position(new_field, position)
+        if board & celled_mask == 0
+          new_board = board + celled_mask
+          new_cell = next_cell(new_board, cell)
 
-          if new_position.nil? || (
-            Connectivity.check(size, new_field, new_position) &&
-            STRATEGY.check_pathologies(new_field, size, block_id, angle_id, mask_position)
+          if new_cell.nil? || (
+            Connectivity.check(size, new_board, new_cell) &&
+            STRATEGY.check_pathologies(new_board, size, block_id, angle_id, mask_cell)
           )
-            return [new_field, new_position, mask_position]
+            return [new_board, new_cell, mask_cell]
           end
         end
       end
@@ -80,10 +80,10 @@ module Tetris
       false
     end
 
-    def next_position(field, position)
-      position = STRATEGY.next(size, position) while(field[position] == 1)
+    def next_cell(board, cell)
+      cell = STRATEGY.next(size, cell) while(board[cell] == 1)
 
-      position / size < size ? position : nil
+      cell / size < size ? cell : nil
     end
 
     def parse_blocks(signature)
@@ -95,9 +95,9 @@ module Tetris
       ]
     end
 
-    def print_field(field)
+    def print_board(board)
       (0...size**2).each do |i|
-        print (field[i] == 0 ? '_' : '@')
+        print (board[i] == 0 ? '_' : '@')
         puts if (i+1) % size == 0
       end
 

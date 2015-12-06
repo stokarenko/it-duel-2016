@@ -1,12 +1,12 @@
 # Copyright (c) 2015 Sergey Tokarenko
 
 module Tetris
-  module FieldWithBorder
-    @@fields_cache = {}
+  module BoardWithBorder
+    @@boards_cache = {}
 
     class << self
       def [](size)
-        @@fields_cache[size] ||= begin
+        @@boards_cache[size] ||= begin
           top_bottom = (0...size).inject(0){ |mem, i|
             mem + (1 << i) + (1 << size*(size-1)+i)
           }

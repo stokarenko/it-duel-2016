@@ -71,7 +71,7 @@ module Tetris
 
             block_rotation_patterns = rotated_blocks.map{ |block|
               {
-                first_point_position: block.first.index(1),
+                first_filled_cell: block.first.index(1),
                 line_patterns: MaskUtils.line_patterns(block)
               }
             }

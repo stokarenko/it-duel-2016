@@ -3,16 +3,16 @@
 module Tetris
   module Connectivity
     class << self
-      def check(size, field, position)
+      def check(size, board, cell)
         empty_points = Array.new(size**2, false)
-        empty_points[position] = true
+        empty_points[cell] = true
 
-        queue = [position]
-        while(center_position = queue.shift)
-          [center_position-1, center_position+1, center_position-size, center_position+size].each do |nearby_position|
-            if !empty_points[nearby_position] && field[nearby_position] == 0
-              empty_points[nearby_position] = true
-              queue.push(nearby_position)
+        queue = [cell]
+        while(center_cell = queue.shift)
+          [center_cell-1, center_cell+1, center_cell-size, center_cell+size].each do |nearby_cell|
+            if !empty_points[nearby_cell] && board[nearby_cell] == 0
+              empty_points[nearby_cell] = true
+              queue.push(nearby_cell)
             end
           end
         end

@@ -8,11 +8,11 @@ module Tetris
 
   autoload :MaskUtils,                      'tetris/mask_utils'
   autoload :BlockMasks,                     'tetris/block_masks'
-  autoload :FieldWithBorder,                'tetris/field_with_border'
+  autoload :BoardWithBorder,                'tetris/board_with_border'
   autoload :BalancedBlocksContainer,        'tetris/balanced_blocks_container'
   autoload :Connectivity,                   'tetris/connectivity'
 
-  autoload :DiagonalPositionStrategy,       'tetris/diagonal_position_strategy'
+  autoload :DiagonalCellStrategy,       'tetris/diagonal_cell_strategy'
 
   autoload :Test,             'tetris/test'
 end
