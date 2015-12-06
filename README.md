@@ -14,7 +14,7 @@ The winner team:
 ## The problem
 The problem is about [the Tetris game](https://en.wikipedia.org/wiki/Tetris).
 Need to compile the square N*N (4 <= N <= 50) from the given set of [tetromino figures](https://en.wikipedia.org/wiki/Tetromino).
-The figures can rotate.
+The figures can be rotated.
 
 ![](images/example.png)
 
@@ -26,7 +26,7 @@ In general, you are given:
 }
 ```
 
-The solution should looks like:
+The solution should look like:
 ```ruby
 [
   [FIGURE_ID, ANGLE_ID, X_1, Y_1],
@@ -84,165 +84,113 @@ There are just three ones:
 
 2. Avoid the ado around the figure structure and rotations via bit masks.
    Board is not the N*N array as well, but an Integer compiled from N*N bits.
-   In additional, start not from empty N*N board, but from (N+2)*(N+2) one, with a border -
+   In additional, start not from empty N\*N board, but from (N+2)\*\(N+2) one, with a border -
    that helps us to avoid the ado around `Is the figure inside the board still?` and
    `Is the figure's bit mask applied without infliction with the board edges?`
 
-3. Compile the tree, where vertex is concrete board filling (starting from empty board),
-   and edges represent the Figure & Angle pairs which can fill the next empty cell of board.
-   Try to find the way from root `empty board` node to `fully filled board` node
+3. Imagine the tree, where vertex is concrete board filling (starting from empty board),
+   and edges represent the Figure & Angle pairs which can fill the next board's empty cell.
+   Then, try to find the way from root `empty board` tree node to `fully filled board` node
    via [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
 
-Thats all - no any kind of connectivity checks, no any programming ado  =)
-So simple to implement within 4 hours, so effective to get a win :)
+That's all - neither kind of connectivity checks, nor programming ado  =)
+So simple to implement within 4 hours, so effective to get a victory :)
 The sources of that solution are marked by [v0.0.1](https://github.com/stokarenko/it-duel-2016/tree/v0.0.1) tag.
 
 ## Ultimate ideas
 The `Ultimate` solution lives in [master](https://github.com/stokarenko/it-duel-2016) branch.
 It is natural evolution of winner one, bust extended by several key ideas. Such as...
 
-### Balanced Blocks Container !
-Lives in `lib/tetris/balanced_blocks_container.rb`
+### Balanced Figures Container !
+[Check it out](lib/tetris/balanced_figures_container.rb)
 
-When we thinking what to do with the next empty board position -
+When we thinking what to do with the next empty board cell -
 try to place the figure types ordered by their remaining quantity, descending.
 
-That helps us to reach the bottom of [DFS stack](https://github.com/stokarenko/it-duel-2016/blob/master/lib/tetris/solver.rb#L51)
-with a single figure by each type, more or less.
+That helps us to reach the bottom of DFS stack
+with a one-two figure by each type, almost always.
 
-### Diagonal Position Strategy !!
-Lives in `lib/tetris/diagonal_position_strategy.rb`, `next` method.
-
-Lets say that we have a board with numbered cells:
-```
- 0  1  2  3
- 4  5  6  7
- 8  9 10 11
-12 13 14 15
-```
+### Diagonal Cells Strategy !!
+[Check it out](lib/tetris/diagonal_strategy/cell.rb)
 
 In winner solution we iterated the board cells one after one, linearly:
-```ruby
-[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].each{}
-```
+![](images/linear_strategy.png)
 
-That causes the long N*(1 || 2) pathologic cell lines at the bottom of DFS stack,
-and turns DFS to infinity loop mode on large board sizes :)
+That causes the long 2\*N pathologic cell lines at the bottom of DFS stack,
+and turns DFS to infinity loop mode on large board sizes.
 
 Lets walk through the board by diagonals:
-```ruby
-[
-  0,
-  1,4,
-  2,5,8,
-  3,6,9,12,
-  7,10,13,
-  11,14,
-  15
-].each{}
-```
+![](images/diagonal_strategy.png)
 
-Now at the bottom of DFS stack we have a small pyramid
-(with top at the board's right-bottom corner).
-
-`DiagonalPositionStrategy` & `BalancedBlocksContainer` synergy gives us the brilliant
-situation, when any task on any board size aims to become the same small problem.
-And we already know how to deal with this problem.
+`Diagonal Cells Strategy` & `Balanced Figures Container` synergy gives us
+the small empty-cells triangle at the bottom of DFS stack,
+with balanced remaining figures quantity.
+This is brilliant behavior, since any task on any board size
+aims to become the same small problem.
 
 Now the remaining goal is to reach the bottom of stack as fast as possible. How to do that?..
 
 ### Connectivity !!!
-Lives in `lib/tetris/connectivity.rb`.
-
-Don't allow to apply the figure, which isolates the empty cells.
+The target is simple - don't allow to apply the figure, which isolates the empty cells.
 How to do that?
 
-We hate any kind of ado, still and forever.
-We will try to avoid it until we can.
-We don't want to look for isolated empty cells though whole board.
+Searching through the board for isolated empty cells each time when the figure has been applied?
+So boring... Can we do better?
 
-But at any moment we know how many figures already applied.
-And we know that any figure covers exactly 4 cells.
-And we know the next empty (guaranted) board cell.
-
-Lets calculate the count of connected empty cells starting from such empty cell,
+Easy to see that the total count of empty cells is equals to
+`N*N - 4 * APPLIED_FIGURES_COUNT`. So we can take the right next empty cell,
+and calculate the count of empty cells connected to the first one,
 via [Breadth-first search](https://en.wikipedia.org/wiki/Breadth-first_search).
+If the result doesn't correspond to the formula - some empty cells are isolated.
 
-Easy to see that this count must equal to `SIZE ** 2 - APPLIED_FIGURES_COUNT * 4`
-when there is no any isolated empty cells.
+Now it's time to remember about `Diagonal Cells Strategy`. One more step -
+check that connected empty cells count is just divisible by 4.
+That give us almost (or even exactly) zero chance to get the pathological case.
 
-Currently, we are too lazy even for this, and
-[checking only division by 4](https://github.com/stokarenko/it-duel-2016/blob/master/lib/tetris/connectivity.rb#L20)
-Actually that can cause the pathologic situation, but the chance is quite small -
-thanks to `DiagonalPositionStrategy`.
+Does BFS take O(N\*N) still? Then final step.
+Consider that all diagonals  which are `previous` relatively to initial empty cell's one -
+are always filled.
+As well as all `next` diagonals starting from sixth one - are always empty.
+Compile this knowledge, and reach the Holy Grail - the linear time.
 
-As a lucky bonus, notice that general computing work is going to be done
-at the bottom of DFS stack
-(we are doing our best to dive to the bottom dashingly),
-so the empty cells connectivity subroutine will take almost nothing there,
-due to the lack of empty cells =)
+[Check it out](lib/tetris/diagonal_strategy/connectivity.rb).
 
-And, the last one...
+And, the last key idea is...
 
 ### Pathologies !!!!
 Lets cure some pathologic situations.
 
-First of them looks like:
-```
-  @ @ @ @ @
-  @ @ @   @
-  @ @ @   @
-  @        
-  @ @ @
-```
+The first of them look like:
+![](images/pathologic.png)
+
 There is no any figure which can be applied within.
-Lets ban this situation.
+Let's prevent this situation.
 
-Each time when the figure is applied, lets look for this configuration
-through the whole board...
+Again, don't be so boring...
+Don't search this pattern through the whole board each time when some figure has been applied.
 
-A-ha, no way! Ago, lazy - do you remember? )
+It's better to ask - when it appears?
 
-How this situation appears? Remember `DiagonalPositionStrategy`,
-we are walking from top-right to bottom-left. Easy to see, that pathologic combination
-appears, right when we apply the `J` figure:
-```
-  @ @ @ @ @
-  @ @ @   @
-  @ @ @   @
-  !        
-  ! ! !
-```
+Remember about `Diagonal Cells Strategy`.
+Easy to see, that it appears right after the `J` figure with `1` angle is going to be applied:
+![](images/pathologic_j.png)
 
-Is it all the cases? Think a bit..
-Ya, `I` figure can compile the pathologic as well:
-```
-  @ @ @ @ @
-  @ @ @   @
-  @ @ @   @
-  @        
-! ! ! !
-```
+Are these all the cases?..
 
-Lets [implement](https://github.com/stokarenko/it-duel-2016/blob/master/lib/tetris/diagonal_position_strategy.rb#L26) that trick.
+No :) Let's consider also `I` figure with `1` angle:
+![](images/pathologic_i.png)
+
+The same related to `L : 2` and `I : 0` figures, when we are close to the board's bottom:
+![](images/pathologic_l_i.png)
 
 The second pathologic situation looks like:
-```
-  @ @ @ @ @
-  @ @ @   @
-  @       @
-  @ @ @
-```
+![](images/pathologic_l.png)
 
-The problem is that algorithm don't see that `L` figure can be applied here.
-Thats because it trying to apply `L` like that:
-```
-  @ @ @ @ @ @
-  @ @ @ @   @
-  @ @ !     @
-  X X X @
-```
-Lets [fix](https://github.com/stokarenko/it-duel-2016/blob/master/lib/tetris/diagonal_position_strategy.rb#L9) this problem.
+The problem is that algorithm doesn't see that `L` figure can be applied here.
+That's because it is trying to apply `L` like that:
+![](images/pathologic_l_wrong_placement.png)
+
+[Check out](lib/tetris/diagonal_strategy/pathology.rb) the box fixes.
 
 ## The solution
 Clone it.
@@ -275,7 +223,7 @@ Output sample, for 50 size:
   [7.68s] {"puzzle_id"=>407837, "solved"=>true, "submitted_at"=>"2015-12-06T16:51:03.098Z"}
 ```
 
-Want to see how it works internally? There is a verbose mode of solving.
+Do you want to see how does it work internally? There is a verbose mode of solving.
 Choose the test case in `lib/tetris/test.rb`, run something like:
 ```console
   $ ./tetris test 12 -v
@@ -284,7 +232,8 @@ Choose the test case in `lib/tetris/test.rb`, run something like:
 ## TODO
 * Fix message on timeout, the problem is not solved in this case ))
 * Move API URL and token to config file
-* Recursion to iterative (?)
+* Cleanup connectivity
+* Recursive to iterative (?)
 
 ## LICENSE
 MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.
