@@ -21,10 +21,13 @@ module Tetris
       verbose = options[:verbose] || false
 
       available_figures = BalancedFiguresContainer.new(figures)
+      board = BoardWithBorder[size]
+
+      BoardPrinter.print(size, board) if verbose
 
       catch(:done){
         Timeout.timeout(timeout) {
-          _solve(BoardWithBorder[size], size+1, available_figures, [], verbose)
+          _solve(board, size+1, available_figures, [], verbose)
         }
       }.map!{ |figure_id, angle_id, mask_cell|
         [figure_id, angle_id, mask_cell % size - 1, mask_cell / size - 1]
@@ -36,10 +39,11 @@ module Tetris
     private
 
     def _solve(board, cell, available_figures, solution, verbose)
-      print_board(board) if verbose
+      BoardPrinter.update(size, board) if verbose
 
       throw(:done, solution) unless cell
 
+#TODO fix enum, fix order
       available_figures.each do |figure_id, number|
         unless number == 0
           (0...figure_masks[figure_id].size).each do |angle_id|
@@ -93,15 +97,6 @@ module Tetris
           map{ |figure_id, number| [figure_id.to_sym, number.to_i] }.
           select{ |_, number| number > 0 }
       ]
-    end
-
-    def print_board(board)
-      (0...size**2).each do |i|
-        print (board[i] == 0 ? '_' : '@')
-        puts if (i+1) % size == 0
-      end
-
-      print "\r" + ("\e[A" * size)
     end
 
   end
