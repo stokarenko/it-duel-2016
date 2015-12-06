@@ -1,7 +1,7 @@
 # Copyright (c) 2015 Sergey Tokarenko
 
 module Tetris
-  module BlockMasks
+  module FigureMasks
     BLOCKS = {
       T:  [
             [1,1,1],
@@ -37,13 +37,13 @@ module Tetris
           ]
     }.freeze
 
-    @@block_masks_cache = {}
+    @@figure_masks_cache = {}
 
     class << self
 
       def [](size)
-        @@block_masks_cache[size] ||= begin
-          pairs = block_patterns.map{ |block_id, patterns|
+        @@figure_masks_cache[size] ||= begin
+          pairs = figure_patterns.map{ |figure_id, patterns|
             masks = patterns.map{ |pattern|
               pattern.dup.tap{ |mask|
                 line_patterns = mask.delete(:line_patterns)
@@ -51,7 +51,7 @@ module Tetris
               }
             }
 
-            [block_id, masks]
+            [figure_id, masks]
           }
 
           Hash[pairs].freeze
@@ -60,23 +60,23 @@ module Tetris
 
       private
 
-      def block_patterns
-        @@block_patterns ||= begin
-          pairs = BLOCKS.map{ |block_id, main_block|
-            rotated_blocks = [main_block]
+      def figure_patterns
+        @@figure_patterns ||= begin
+          pairs = BLOCKS.map{ |figure_id, main_figure|
+            rotated_figures = [main_figure]
             (1..3).each do |i|
-              rotated_blocks[i] = rotated_blocks[i-1].reverse.transpose
+              rotated_figures[i] = rotated_figures[i-1].reverse.transpose
             end
-            rotated_blocks.uniq!
+            rotated_figures.uniq!
 
-            block_rotation_patterns = rotated_blocks.map{ |block|
+            figure_rotation_patterns = rotated_figures.map{ |figure|
               {
-                first_point_position: block.first.index(1),
-                line_patterns: MaskUtils.line_patterns(block)
+                first_filled_cell: figure.first.index(1),
+                line_patterns: MaskUtils.line_patterns(figure)
               }
             }
 
-            [block_id, block_rotation_patterns]
+            [figure_id, figure_rotation_patterns]
           }
 
           Hash[pairs]

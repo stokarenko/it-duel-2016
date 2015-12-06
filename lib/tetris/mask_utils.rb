@@ -3,8 +3,8 @@
 module Tetris
   module MaskUtils
     class << self
-      def line_patterns(block)
-        block.reverse.map{ |line|
+      def line_patterns(figure)
+        figure.reverse.map{ |line|
           line.reverse.reduce(0){|mem, new_bit|
             (mem << 1) + new_bit
           }
