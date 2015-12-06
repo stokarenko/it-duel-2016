@@ -41,20 +41,17 @@ module Tetris
 
       throw(:done, solution) unless cell
 
-#TODO fix enum, fix order
-      available_figures.each do |figure_id, number|
-        unless number == 0
-          FigureMasks[size][figure_id].size.times do |angle_id|
-            new_board, new_cell, mask_cell = apply_figure(board, cell, figure_id, angle_id)
-            if new_board
-              available_figures.take(figure_id)
-              solution << [figure_id, angle_id, mask_cell]
+      available_figures.each do |figure_id|
+        FigureMasks[size][figure_id].size.times do |angle_id|
+          new_board, new_cell, mask_cell = apply_figure(board, cell, figure_id, angle_id)
+          if new_board
+            available_figures.change(figure_id, -1)
+            solution << [figure_id, angle_id, mask_cell]
 
-              _solve(new_board, new_cell, available_figures, solution, verbose)
+            _solve(new_board, new_cell, available_figures, solution, verbose)
 
-              available_figures.return(figure_id)
-              solution.pop
-            end
+            available_figures.change(figure_id, 1)
+            solution.pop
           end
         end
       end

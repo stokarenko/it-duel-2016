@@ -6,39 +6,31 @@ module Tetris
     attr_reader :ordered_figures
 
     def initialize(figures)
-      @ordered_figures = figures.each_pair.sort{ |(_, number1), (_, number2)|
-        number2 <=> number1
-      }
+      @ordered_figures = figures.to_a
+      sort!
     end
 
-    def each(&figure)
-      ordered_figures.each(&figure)
-    end
-
-    def take(figure_id)
-      index = index_by_figure_id(figure_id)
-      ordered_figures[index][1] -= 1
-
-      while(index < ordered_figures.size-1 && ordered_figures[index][1] < ordered_figures[index+1][1])
-        ordered_figures[index], ordered_figures[index+1] = ordered_figures[index+1], ordered_figures[index]
-        index += 1
+    def each
+      ordered_figures.each do |figure_id, number|
+        yield(figure_id) if number > 0
       end
     end
 
-    def return(figure_id)
-      index = index_by_figure_id(figure_id)
-      ordered_figures[index][1] += 1
+    def change(figure_id, diff)
+      index = ordered_figures.index{|ordered_figure_id, _| ordered_figure_id == figure_id}
+      ordered_figures[index][1] += diff
 
-      while(index > 0 && ordered_figures[index][1] > ordered_figures[index-1][1])
-        ordered_figures[index], ordered_figures[index-1] = ordered_figures[index-1], ordered_figures[index]
-        index -= 1
-      end
+      sort!
     end
 
     private
 
-    def index_by_figure_id(figure_id)
-      ordered_figures.index{|ordered_figure_id, _| ordered_figure_id == figure_id}
+    def sort!
+      ordered_figures.sort!{ |(figure_id1, number1), (figure_id2, number2)|
+        number2 == number1 ?
+          figure_id2 <=> figure_id1 :
+          number2 <=> number1
+      }
     end
 
   end
