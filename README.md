@@ -83,7 +83,7 @@ There are just three ones:
    Instead, our target is to fill each cell of the board, one by one.
 
 2. Avoid the ado around the figure structure and rotations via bit masks.
-   Board is not the N*N array as well, but an Integer compiled from N*N bits.
+   Board is not the N\*N array as well, but an Integer compiled from N\*N bits.
    In additional, start not from empty N\*N board, but from (N+2)\*\(N+2) one, with a border -
    that helps us to avoid the ado around `Is the figure inside the board still?` and
    `Is the figure's bit mask applied without infliction with the board edges?`
