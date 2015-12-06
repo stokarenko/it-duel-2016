@@ -6,13 +6,11 @@ module Tetris
   class Solver
     STRATEGY = DiagonalStrategy
 
-    attr_reader :size, :figures, :figure_masks
+    attr_reader :size, :figures
 
     def initialize(options)
       @size = options.fetch(:size) + 2
-      @figures = parse_figures(options.fetch(:signature))
-
-      @figure_masks = FigureMasks[size]
+      @figures = parse_signature(options.fetch(:signature))
     end
 
     def solve(options = {})
@@ -46,7 +44,7 @@ module Tetris
 #TODO fix enum, fix order
       available_figures.each do |figure_id, number|
         unless number == 0
-          (0...figure_masks[figure_id].size).each do |angle_id|
+          FigureMasks[size][figure_id].size.times do |angle_id|
             new_board, new_cell, mask_cell = apply_figure(board, cell, figure_id, angle_id)
             if new_board
               available_figures.take(figure_id)
@@ -63,18 +61,18 @@ module Tetris
     end
 
     def apply_figure(board, cell, figure_id, angle_id)
-      mask = figure_masks[figure_id][angle_id]
+      mask = FigureMasks[size][figure_id][angle_id]
 
-      STRATEGY::Cell.each_mask_cell(size, cell, figure_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
+      STRATEGY::Pathology.mask_cells(size, cell, figure_id, angle_id, mask[:first_filled_cell]) do |mask_cell|
         celled_mask = mask[:mask] << mask_cell
 
         if board & celled_mask == 0
           new_board = board + celled_mask
-          new_cell = next_cell(new_board, cell)
+          new_cell = STRATEGY::Cell.next(new_board, size, cell)
 
           if new_cell.nil? || (
-            Connectivity.check(size, new_board, new_cell) &&
-            STRATEGY::Cell.check_pathologies(new_board, size, figure_id, angle_id, mask_cell)
+            STRATEGY::Connectivity.check(size, new_board, new_cell) &&
+            STRATEGY::Pathology.check(new_board, size, figure_id, angle_id, mask_cell)
           )
             return [new_board, new_cell, mask_cell]
           end
@@ -84,13 +82,7 @@ module Tetris
       false
     end
 
-    def next_cell(board, cell)
-      cell = STRATEGY::Cell.next(size, cell) while(board[cell] == 1)
-
-      cell / size < size ? cell : nil
-    end
-
-    def parse_figures(signature)
+    def parse_signature(signature)
       Hash[
         signature.
           scan(/(\w)(\d+)/).

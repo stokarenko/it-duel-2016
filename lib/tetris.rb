@@ -11,7 +11,6 @@ module Tetris
   autoload :BoardWithBorder,          'tetris/board_with_border'
   autoload :BoardPrinter,             'tetris/board_printer'
   autoload :BalancedFiguresContainer, 'tetris/balanced_figures_container'
-  autoload :Connectivity,             'tetris/connectivity'
 
   autoload :DiagonalStrategy, 'tetris/diagonal_strategy'
 
