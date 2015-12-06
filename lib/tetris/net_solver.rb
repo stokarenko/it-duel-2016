@@ -5,6 +5,7 @@ require 'benchmark'
 
 module Tetris
   class NetSolver
+    #TODO move to config
     TOKEN = '0c07cedd-397b-491a-9173-370a1969dd97'
     API_URL = 'http://tetro.andy128k.net/api/'
 
@@ -28,7 +29,7 @@ module Tetris
       while true
         puts "=" * 42
         puts
-        work
+        work rescue Net::ReadTimeout
       end
     end
 
