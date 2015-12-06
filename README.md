@@ -114,12 +114,14 @@ with a one-two figure by each type, almost always.
 [Check it out](lib/tetris/diagonal_strategy/cell.rb)
 
 In winner solution we iterated the board cells one after one, linearly:
+
 ![](images/linear_strategy.png)
 
 That causes the long 2\*N pathologic cell lines at the bottom of DFS stack,
 and turns DFS to infinity loop mode on large board sizes.
 
 Lets walk through the board by diagonals:
+
 ![](images/diagonal_strategy.png)
 
 `Diagonal Cells Strategy` & `Balanced Figures Container` synergy gives us
@@ -161,6 +163,7 @@ And, the last key idea is...
 Lets cure some pathologic situations.
 
 The first of them look like:
+
 ![](images/pathologic.png)
 
 There is no any figure which can be applied within.
@@ -173,21 +176,26 @@ It's better to ask - when it appears?
 
 Remember about `Diagonal Cells Strategy`.
 Easy to see, that it appears right after the `J` figure with `1` angle is going to be applied:
+
 ![](images/pathologic_j.png)
 
 Are these all the cases?..
 
 No :) Let's consider also `I` figure with `1` angle:
+
 ![](images/pathologic_i.png)
 
 The same related to `L : 2` and `I : 0` figures, when we are close to the board's bottom:
+
 ![](images/pathologic_l_i.png)
 
 The second pathologic situation looks like:
+
 ![](images/pathologic_l.png)
 
 The problem is that algorithm doesn't see that `L` figure can be applied here.
 That's because it is trying to apply `L` like that:
+
 ![](images/pathologic_l_wrong_placement.png)
 
 [Check out](lib/tetris/diagonal_strategy/pathology.rb) the box fixes.
