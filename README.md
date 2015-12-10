@@ -34,7 +34,7 @@ The solution should look like:
   [FIGURE_ID, ANGLE_ID, X_I, Y_I]
 ]
 ```
-X and Y are top-left corner coordinates of placed figure, both starting from 0.
+X and Y are top-left corner coordinates of placed figure, both starting from `0`.
 
 Figure IDs and angle IDs should correspond to the definition:
 ![](images/figures.png)
@@ -164,7 +164,7 @@ Lets cure some pathologic situations.
 
 The first of them look like:
 
-![](images/pathologic.png)
+![](images/pathology1.png)
 
 There is no any figure which can be applied within.
 Let's prevent this situation.
@@ -177,26 +177,28 @@ It's better to ask - when it appears?
 Remember about `Diagonal Cells Strategy`.
 Easy to see, that it appears right after the `J` figure with `1` angle is going to be applied:
 
-![](images/pathologic_j.png)
+![](images/pathology1_J.png)
 
 Are these all the cases?..
 
 No :) Let's consider also `I` figure with `1` angle:
 
-![](images/pathologic_i.png)
+![](images/pathology1_I.png)
 
 The same related to `L : 2` and `I : 0` figures, when we are close to the board's bottom:
 
-![](images/pathologic_l_i.png)
+![](images/pathology1_L.png)
+
+![](images/pathology1_I_bottom.png)
 
 The second pathologic situation looks like:
 
-![](images/pathologic_l.png)
+![](images/pathology2.png)
 
 The problem is that algorithm doesn't see that `L` figure can be applied here.
 That's because it is trying to apply `L` like that:
 
-![](images/pathologic_l_wrong_placement.png)
+![](images/pathology2_L.png)
 
 [Check out](lib/tetris/diagonal_strategy/pathology.rb) the both fixes.
 
