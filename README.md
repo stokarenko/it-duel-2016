@@ -282,8 +282,6 @@ Choose [the test case](lib/tetris/test.rb), run something like:
 * Move API URL and token to config file
 * Cleanup connectivity
 * Recursive to iterative (?)
-* Describe some cool programming tricks
-* One pathologic image is not perfect ((
 * Tests (?)
 
 ## LICENSE
