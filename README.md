@@ -34,7 +34,7 @@ The solution should look like:
   [FIGURE_ID, ANGLE_ID, X_I, Y_I]
 ]
 ```
-X and Y are top-left corner coordinates of placed figure, both starting from 0.
+X and Y are top-left corner coordinates of placed figure, both starting from `0`.
 
 Figure IDs and angle IDs should correspond to the definition:
 ![](images/figures.png)
@@ -126,8 +126,11 @@ Lets walk through the board by diagonals:
 
 `Diagonal Cells Strategy` & `Balanced Figures Container` synergy gives us
 the small empty-cells triangle at the bottom of DFS stack,
-with balanced remaining figures quantity.
-This is brilliant behavior, since any task on any board size
+with balanced remaining figures quantity:
+
+![](images/synergy.png)
+
+This is a brilliant behavior, since any task on any board size
 aims to become the same small problem.
 
 Now the remaining goal is to reach the bottom of stack as fast as possible. How to do that?..
@@ -153,6 +156,9 @@ Does BFS take O(N\*N) still? Then final step.
 Consider that all diagonals  which are `previous` relatively to initial empty cell's one -
 are always filled.
 As well as all `next` diagonals starting from sixth one - are always empty.
+
+![](images/connectivity.png)
+
 Compile this knowledge, and reach the Holy Grail - the linear time.
 
 [Check it out](lib/tetris/diagonal_strategy/connectivity.rb).
@@ -164,7 +170,7 @@ Lets cure some pathologic situations.
 
 The first of them look like:
 
-![](images/pathologic.png)
+![](images/pathology1.png)
 
 There is no any figure which can be applied within.
 Let's prevent this situation.
@@ -177,28 +183,62 @@ It's better to ask - when it appears?
 Remember about `Diagonal Cells Strategy`.
 Easy to see, that it appears right after the `J` figure with `1` angle is going to be applied:
 
-![](images/pathologic_j.png)
+![](images/pathology1_J.png)
 
 Are these all the cases?..
 
 No :) Let's consider also `I` figure with `1` angle:
 
-![](images/pathologic_i.png)
+![](images/pathology1_I.png)
 
 The same related to `L : 2` and `I : 0` figures, when we are close to the board's bottom:
 
-![](images/pathologic_l_i.png)
+![](images/pathology1_L.png)
+
+![](images/pathology1_I_bottom.png)
 
 The second pathologic situation looks like:
 
-![](images/pathologic_l.png)
+![](images/pathology2.png)
 
 The problem is that algorithm doesn't see that `L` figure can be applied here.
 That's because it is trying to apply `L` like that:
 
-![](images/pathologic_l_wrong_placement.png)
+![](images/pathology2_L.png)
 
 [Check out](lib/tetris/diagonal_strategy/pathology.rb) the both fixes.
+
+## Some cool programming tips & tricks
+
+Third-party libraries:
+
+* Use [Thor](https://github.com/erikhuda/thor) to build [the command-line interfaces](lib/tetris/cli.rb#L6)
+* Use [httparty](https://github.com/jnunemaker/httparty) to build [the HTTP clients](lib/tetris/net_solver.rb#L12)
+
+Ruby programming in general:
+
+* Use [$LOAD_PATH](tetris#L9) & [autoload](lib/tetris.rb#L4-L17). Forget about `require`
+* Use [throw](lib/tetris/solver.rb#L42) & [catch](lib/tetris/solver.rb#L26) rather than `raise` & `rescue` if the stack surface is a normal behavior, but not exception
+* Aim to at least [linear memory usage](lib/tetris/solver.rb#L48-L54)
+* Emulate the enumerable by yields ([one](lib/tetris/diagonal_strategy/pathology.rb#L8), [two](lib/tetris/diagonal_strategy/connectivity.rb#L52), [three](lib/tetris/balanced_figures_container.rb#L13)), rather than to feed the garbage collector by extra arrays. If you need the true enumerable for chaining - just add `return enum_for(:same_method_name, *args) unless block_given?` to the beginning of method
+* [while(true)](lib/tetris/net_solver.rb#L29) is [MUCH faster](https://gist.github.com/stokarenko/a247f3f44997e8fbf31d) than `loop do` o_O
+* Use [matrix.reverse.transpose](lib/tetris/figure_masks.rb#L68) to rotate the matrix by 90 clockwise, and `matrix.transpose.reverse` to rotate counterclockwise
+* [Me](lib/tetris/figure_masks.rb#L45) - [mo](lib/tetris/figure_masks.rb#L64) - [ization](lib/tetris/board_with_border.rb#L9)!
+* BalancedFiguresContainer should be ordered [by figure types](lib/tetris/balanced_figures_container.rb#L31), in additional to ordering by quantities. Otherwise the iteration through it will be corrupted.
+* [BalancedFiguresContainer](lib/tetris/balanced_figures_container.rb) can be implemented much effectively by any kind of `OrderedArray`-like data structure, such as [Heap](https://en.wikipedia.org/wiki/Heap_(data_structure)). Hope that it's clear why we are idle here :)
+* As for `Lazy` calculations in Ruby, look at some [frank benchmarks](https://gist.github.com/stokarenko/a78833d6587952f94e9b), think about..
+* Check out some [other interesting benchmarks](https://github.com/JuanitoFatas/fast-ruby)
+* Remember that [Recursion](lib/tetris/solver.rb#L51) is anti-pattern in general case. Especially for Ruby, especially for now
+* Remember that UnitTest is anti-pattern as well =)
+
+Bit masks:
+
+* Bitwise operators are [a bit SLOWER](https://gist.github.com/stokarenko/867d424b2b16038df784) than arithmetic analogs o_O
+* In order to keep the board's lower coordinates at lower Integer bits, we need to [reverse](lib/tetris/mask_utils.rb#L7-L8) the figure mask
+* Figure bit masks [should be compiled](lib/tetris/mask_utils.rb#L14) for each specific board size before the usage, since they are multiline
+* Bitwise `AND` [helps us](lib/tetris/solver.rb#L66) to check the infliction of positioned figure with partially filled board
+* Simple arithmetic addition [helps us](lib/tetris/solver.rb#L67) to apply the positioned figure. Consider that it works only if no inflictions there. In general case, bitwise `OR` does the same
+* The `[]` method returns the specific bit on Integers
 
 ## The solution
 Clone it.
@@ -232,7 +272,7 @@ Output sample, for 50 size:
 ```
 
 Do you want to see how does it work internally? There is a verbose mode of solving.
-Choose the test case in `lib/tetris/test.rb`, run something like:
+Choose [the test case](lib/tetris/test.rb), run something like:
 ```console
   $ ./tetris test 12 -v
 ```
@@ -244,6 +284,7 @@ Choose the test case in `lib/tetris/test.rb`, run something like:
 * Recursive to iterative (?)
 * Describe some cool programming tricks
 * One pathologic image is not perfect ((
+* Tests (?)
 
 ## LICENSE
 MIT License. Copyright (c) 2015 Sergey Tokarenko, Dmitriy Kiriyenko, Alexey Kudryashov.
