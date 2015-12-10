@@ -126,8 +126,11 @@ Lets walk through the board by diagonals:
 
 `Diagonal Cells Strategy` & `Balanced Figures Container` synergy gives us
 the small empty-cells triangle at the bottom of DFS stack,
-with balanced remaining figures quantity.
-This is brilliant behavior, since any task on any board size
+with balanced remaining figures quantity:
+
+![](images/synergy.png)
+
+This is a brilliant behavior, since any task on any board size
 aims to become the same small problem.
 
 Now the remaining goal is to reach the bottom of stack as fast as possible. How to do that?..
@@ -153,6 +156,9 @@ Does BFS take O(N\*N) still? Then final step.
 Consider that all diagonals  which are `previous` relatively to initial empty cell's one -
 are always filled.
 As well as all `next` diagonals starting from sixth one - are always empty.
+
+![](images/connectivity.png)
+
 Compile this knowledge, and reach the Holy Grail - the linear time.
 
 [Check it out](lib/tetris/diagonal_strategy/connectivity.rb).
