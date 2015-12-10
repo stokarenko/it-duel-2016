@@ -227,6 +227,7 @@ Ruby programming in general:
 * BalancedFiguresContainer should be ordered [by figure types](lib/tetris/balanced_figures_container.rb#L31), in additional to ordering by quantities. Otherwise the iteration through it will be corrupted.
 * [BalancedFiguresContainer](lib/tetris/balanced_figures_container.rb) can be implemented much effectively by any kind of `OrderedArray`-like data structure, such as [Heap](https://en.wikipedia.org/wiki/Heap_(data_structure)). Hope that it's clear why we are idle here :)
 * As for `Lazy` calculations in Ruby, look at some [frank benchmarks](https://gist.github.com/stokarenko/a78833d6587952f94e9b), think about..
+* Check out some [other interesting benchmarks](https://github.com/JuanitoFatas/fast-ruby)
 * Remember that [Recursion](lib/tetris/solver.rb#L51) is anti-pattern in general case. Especially for Ruby, especially for now
 * Remember that UnitTest is anti-pattern as well =)
 
