@@ -90,7 +90,7 @@ There are just three ones:
 
 3. Imagine the tree, where vertex is concrete board filling (starting from empty board),
    and edges represent the Figure & Angle pairs which can fill the next board's empty cell.
-   Then, try to find the way from root `empty board` tree node to `fully filled board` node
+   Then, try to find the path from root `empty board` tree node to `fully filled board` node
    via [Depth-first search](https://en.wikipedia.org/wiki/Depth-first_search)
 
 That's all - neither kind of connectivity checks nor programming ado  =)
@@ -281,6 +281,7 @@ Choose [the test case](lib/tetris/test.rb), run something like:
 * Fix message on timeout, the problem is not solved in this case ))
 * Move API URL and token to config file
 * Cleanup connectivity
+* Pathology check with bit masks
 * Recursive to iterative (?)
 * Tests (?)
 
